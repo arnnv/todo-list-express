@@ -41,9 +41,8 @@ app.get("/todos/:id", (req, res) => {
 });
 
 app.post("/todos", (req, res) => {
-  const id = generateRandomId();
   const todo = {
-    id,
+    id: generateRandomId(),
     title: req.body.title,
     description: req.body.description,
   };
@@ -52,9 +51,55 @@ app.post("/todos", (req, res) => {
     arr.push(todo);
     fs.writeFile("./todos.json", JSON.stringify(arr), (err) => {
       if (err) throw err;
-      res.sendStatus(201);
+      res.status(201).json(todo);
     });
   });
+});
+
+app.put("/todos/:id", (req, res) => {
+  fs.readFile("./todos.json", "utf-8", (err, data) => {
+    if (err) throw err;
+
+    const id = req.params.id;
+    let arr = JSON.parse(data);
+    let todoIdx = getTodoIdx(arr, id);
+
+    if (todoIdx === -1) {
+      res.sendStatus(404);
+    } else {
+      arr[todoIdx].title = req.body.title;
+      arr[todoIdx].description = req.body.description;
+
+      fs.writeFile("./todos.json", JSON.stringify(arr), (err) => {
+        if (err) throw err;
+        res.status(200).json(arr[todoIdx]);
+      });
+    }
+  });
+});
+
+app.delete("/todos/:id", (req, res) => {
+  fs.readFile("./todos.json", "utf-8", (err, data) => {
+    if (err) throw err;
+
+    const id = req.params.id;
+    let arr = JSON.parse(data);
+    const todoIdx = getTodoIdx(arr, id);
+
+    if (todoIdx === -1) {
+      res.sendStatus(404);
+    } else {
+      arr.splice(todoIdx, 1);
+      fs.writeFile("./todos.json", JSON.stringify(arr), (err) => {
+        if (err) throw err;
+        res.sendStatus(200);
+      });
+    }
+  });
+});
+
+app.use((req, res) => {
+  res.sendStatus(404);
 });
 
 app.listen(PORT, () => {
