@@ -1,1 +1,7 @@
-[{ "id": 1, "title": "Buy groceries", "description": "I should buy groceries" }]
+[
+  {
+    "id": "1",
+    "title": "Buy groceries",
+    "description": "I should buy groceries"
+  }
+]
