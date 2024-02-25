@@ -3,6 +3,8 @@ const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 
 const app = express();
+app.use(express.json());
+
 const PORT = 3000;
 
 function getTodoIdx(arr, id) {
@@ -38,7 +40,22 @@ app.get("/todos/:id", (req, res) => {
   });
 });
 
-app.post("/todos", (req, res) => {});
+app.post("/todos", (req, res) => {
+  const id = generateRandomId();
+  const todo = {
+    id,
+    title: req.body.title,
+    description: req.body.description,
+  };
+  fs.readFile("./todos.json", "utf-8", (err, data) => {
+    let arr = JSON.parse(data);
+    arr.push(todo);
+    fs.writeFile("./todos.json", JSON.stringify(arr), (err) => {
+      if (err) throw err;
+      res.sendStatus(201);
+    });
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}.`);
